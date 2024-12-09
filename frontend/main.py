@@ -62,6 +62,10 @@ class MusicApp(QWidget):
 
         self.layout.addLayout(button_layout)
 
+        # Add the current song label below the buttons
+        self.current_song_label = QLabel("Current Song: None")
+        self.layout.addWidget(self.current_song_label)
+
         self.volume_slider = QSlider(Qt.Horizontal)
         self.volume_slider.setRange(0, 100)
         self.volume_slider.setValue(50)
@@ -73,9 +77,6 @@ class MusicApp(QWidget):
 
         self.current_time_label = QLabel("Current Time: 0:00")
         self.layout.addWidget(self.current_time_label)
-
-        self.current_song_label = QLabel("Current Song: None")
-        self.layout.addWidget(self.current_song_label)
 
         self.cover_label = QLabel()
         self.layout.addWidget(self.cover_label)
@@ -90,22 +91,28 @@ class MusicApp(QWidget):
     def load_songs(self):
         songs_dir = os.path.abspath("../songs")
         mp3_files = glob.glob(os.path.join(songs_dir, "*.mp3"))
+        songs = []
         for mp3 in mp3_files:
             song_title = Path(mp3).stem
             duration = self.player.getSongDuration(mp3)
-            self.song_list.addItem(f"{song_title} ({duration})")
+            songs.append(f"{song_title} ({duration})")
+        songs.sort()  # Sort the songs alphabetically
+        self.song_list.addItems(songs)
 
     def play_song(self):
+        print("Playing song")
         self.player.play()
         self.update_cover_image()
 
     def pause_song(self):
+        print("Pausing song")
         self.player.pause()
 
     def stop_song(self):
+        print("Stopping song")
         self.player.stop()
         if self.queued_songs_list.count() > 0:
-            self.queued_songs_list.takeItem(0)
+            self.queued_songs_list.takeItem(0)  # Remove the first item from the queue display
 
     def queue_song(self):
         selected_items = self.song_list.selectedItems()
@@ -114,6 +121,9 @@ class MusicApp(QWidget):
             song_path = os.path.abspath(f"../songs/{song_title}.mp3")
             self.queued_songs_list.addItem(song_title)
             self.player.queueSong(song_path)
+            print(f"Queued song: {song_title}")
+        else:
+            print("No song selected to queue")
 
     def set_volume(self):
         volume = self.volume_slider.value()
@@ -127,10 +137,9 @@ class MusicApp(QWidget):
         self.current_song_label.setText(f"Current Song: {current_song}")
 
     def update_cover_image(self):
-        selected_items = self.song_list.selectedItems()
-        if selected_items:
-            song_title = selected_items[0].text().split(" (")[0]  # Extract the song title without duration
-            song_path = os.path.abspath(f"../songs/{song_title}.mp3")
+        current_song = self.player.getCurrentSongTitle()
+        if current_song:
+            song_path = os.path.abspath(f"../songs/{current_song}.mp3")
             audio = MP3(song_path, ID3=ID3)
             for tag in audio.tags.values():
                 if isinstance(tag, APIC):
@@ -138,19 +147,20 @@ class MusicApp(QWidget):
                     pixmap = QPixmap()
                     if pixmap.loadFromData(cover_data):
                         self.cover_label.setPixmap(pixmap)
-                        print(f"Cover image loaded for {song_title}")
+                        print(f"Cover image loaded for {current_song}")
                     else:
-                        print(f"Failed to load cover image for {song_title}")
+                        print(f"Failed to load cover image for {current_song}")
                     break
             else:
-                print(f"No cover image found for {song_title}")
+                print(f"No cover image found for {current_song}")
 
     def update(self):
         self.player.update()
         self.update_current_time()
-        if self.player.isSongFinished() and self.queued_songs_list.count() > 0:
-            self.queued_songs_list.takeItem(0)
-            self.player.play()
+        if self.player.isSongFinished():
+            if self.queued_songs_list.count() > 0:
+                self.queued_songs_list.takeItem(0)  # Remove the first item from the queue display
+                self.player.play()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
