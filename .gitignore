@@ -1,6 +1,8 @@
 .venv/
 instructions_to_build.txt
 build/
+.DS_Store
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
