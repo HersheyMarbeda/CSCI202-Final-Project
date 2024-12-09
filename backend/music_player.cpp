@@ -24,6 +24,7 @@ void MusicPlayer::play() {
         sound.setBuffer(buffer);
         sound.setVolume(volume);
         sound.play();
+        currentSongTitle = fs::path(songPath).stem().string();  // Store the current song title
         std::cout << "Playing: " << songPath << " at volume " << volume << "%" << std::endl;
         songQueue.pop();  // Remove the song from the queue after playing
         isPlaying = true;
@@ -47,6 +48,7 @@ void MusicPlayer::stop() {
         std::cout << "Playback stopped." << std::endl;
         isPlaying = false;
         isPaused = false;
+        currentSongTitle.clear();  // Clear the current song title
     } else {
         std::cout << "Playback is already stopped." << std::endl;
     }
@@ -74,7 +76,7 @@ void MusicPlayer::queueSong(const std::string& songPath) {
             play();
         }
     } else {
-        std::cerr << "Error: Song does not exist or is not an mp3 file." << std::endl;
+        std::cerr << "Error: Song does not exist or is not an mp3 file: " << songPath << std::endl;
     }
 }
 
@@ -108,4 +110,21 @@ std::string MusicPlayer::getCurrentTime() const {
     int minutes = static_cast<int>(currentTime.asSeconds()) / 60;
     int seconds = static_cast<int>(currentTime.asSeconds()) % 60;
     return std::to_string(minutes) + ":" + (seconds < 10 ? "0" : "") + std::to_string(seconds);
+}
+
+std::string MusicPlayer::getCurrentSongTitle() const {
+    return currentSongTitle;
+}
+
+void MusicPlayer::update() {
+    if (isPlaying && sound.getStatus() == sf::Sound::Stopped) {
+        isPlaying = false;
+        if (!songQueue.empty()) {
+            play();
+        }
+    }
+}
+
+bool MusicPlayer::isSongFinished() const {
+    return sound.getStatus() == sf::Sound::Stopped;
 }

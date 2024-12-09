@@ -18,7 +18,7 @@ find_package(SFML 2.5 COMPONENTS audio REQUIRED)
 add_library(music_player MODULE music_player.cpp music_player_pybind.cpp)
 
 # Include PyBind11 and SFML headers
-target_include_directories(music_player PRIVATE ${pybind11_INCLUDE_DIRS} ${Python3_INCLUDE_DIRS} ${SFML_INCLUDE_DIR})
+target_include_directories(music_player PRIVATE ${pybind11_INCLUDE_DIRS} ${Python3_INCLUDE_DIRS} ${SFML_INCLUDE_DIRS})
 
 # Link the Python and SFML libraries
 target_link_libraries(music_player PRIVATE ${Python3_LIBRARIES} pybind11::module sfml-audio)

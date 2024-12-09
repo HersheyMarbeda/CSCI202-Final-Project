@@ -14,5 +14,8 @@ PYBIND11_MODULE(music_player, m) {
         .def("setVolume", &MusicPlayer::setVolume)
         .def("getVolume", &MusicPlayer::getVolume)
         .def("getSongDuration", &MusicPlayer::getSongDuration)
-        .def("getCurrentTime", &MusicPlayer::getCurrentTime);  
+        .def("getCurrentTime", &MusicPlayer::getCurrentTime)
+        .def("getCurrentSongTitle", &MusicPlayer::getCurrentSongTitle)
+        .def("update", &MusicPlayer::update)
+        .def("isSongFinished", &MusicPlayer::isSongFinished); 
 }

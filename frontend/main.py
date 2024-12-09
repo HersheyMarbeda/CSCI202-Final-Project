@@ -20,7 +20,7 @@ from pathlib import Path
 class MusicApp(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Music Player")
+        self.setWindowTitle("Hershey's Music Player")
         self.player = MusicPlayer()
 
         self.layout = QVBoxLayout()
@@ -74,14 +74,17 @@ class MusicApp(QWidget):
         self.current_time_label = QLabel("Current Time: 0:00")
         self.layout.addWidget(self.current_time_label)
 
+        self.current_song_label = QLabel("Current Song: None")
+        self.layout.addWidget(self.current_song_label)
+
         self.cover_label = QLabel()
         self.layout.addWidget(self.cover_label)
 
         self.setLayout(self.layout)
 
-        # Set up a timer to update the current playback time
+        # Set up a timer to update the current playback time and song title
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_current_time)
+        self.timer.timeout.connect(self.update)
         self.timer.start(1000)  # Update every second
 
     def load_songs(self):
@@ -120,6 +123,8 @@ class MusicApp(QWidget):
     def update_current_time(self):
         current_time = self.player.getCurrentTime()
         self.current_time_label.setText(f"Current Time: {current_time}")
+        current_song = self.player.getCurrentSongTitle()
+        self.current_song_label.setText(f"Current Song: {current_song}")
 
     def update_cover_image(self):
         selected_items = self.song_list.selectedItems()
@@ -139,6 +144,13 @@ class MusicApp(QWidget):
                     break
             else:
                 print(f"No cover image found for {song_title}")
+
+    def update(self):
+        self.player.update()
+        self.update_current_time()
+        if self.player.isSongFinished() and self.queued_songs_list.count() > 0:
+            self.queued_songs_list.takeItem(0)
+            self.player.play()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
