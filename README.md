@@ -14,4 +14,6 @@ After installing these dependencies,
   3. Enjoy the music player!
   4. Add songs to it to or make the interface more friendly.
     
-    
+## Resources
+- To convert YouTube link to .mp3 [https://v2.youconvert.net/eng/]
+  
